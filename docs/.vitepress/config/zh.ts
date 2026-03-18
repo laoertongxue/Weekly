@@ -4,7 +4,7 @@ import { createSideBarZH } from "../utils/createSideBar";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "FAV0周刊",
+  title: "拾贰奇闻怪谈周刊",
   description: "《FAV0周刊》：记录每周所见所闻，主要关注前端、AI领域、独立开发以及计算机相关内容",
   lang: "zh-Hans", //语言
 
