@@ -1,6 +1,5 @@
 <template>
-  <Teleport to="body">
-    <div v-if="headers.length > 0" class="floating-outline" :class="{ 'is-open': isOpen }">
+  <div class="floating-outline" :class="{ 'is-open': isOpen }" v-show="headers.length > 0">
         <button class="floating-outline__btn" @click="toggle" :title="isOpen ? '收起大纲' : '大纲'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -58,19 +57,28 @@
           </div>
         </Transition>
       </div>
-  </Teleport>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
-import { useData, useRoute } from "vitepress";
+import { useRoute } from "vitepress";
 
-const { page } = useData();
+interface Header {
+  level: number;
+  title: string;
+  slug: string;
+  link: string;
+  children?: Header[];
+}
+
+const props = defineProps<{
+  headers: Header[];
+}>();
+
 const route = useRoute();
 
 const headers = computed(() => {
-  const h = page.value?.headers || [];
-  return h.filter((header: any) => header.level >= 2 && header.level <= 4);
+  return (props.headers || []).filter((header) => header.level >= 2 && header.level <= 4);
 });
 
 const isOpen = ref(false);

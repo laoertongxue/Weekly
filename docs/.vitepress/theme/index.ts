@@ -1,5 +1,6 @@
 // https://vitepress.dev/guide/custom-theme
-import { h } from "vue";
+import { h, defineComponent, Fragment } from "vue";
+import { useData } from "vitepress";
 import Theme from 'vitepress/theme-without-fonts' // https://vitepress.dev/zh/guide/extending-default-theme#using-different-fonts
 // 引入组件库的少量全局样式变量
 import 'tdesign-vue-next/es/style/index.css';
@@ -12,15 +13,19 @@ import FloatingOutline from "./components/FloatingOutline.vue";
 
 export default {
 	...Theme,
-	Layout: () => {
-		return h(Theme.Layout, null, {
-			// https://vitepress.dev/guide/extending-default-theme#layout-slots
-			"doc-after": () => h(Comment),
-			"doc-bottom": () => h(ImageViewer),
-			// "aside-top": () => h(Subscribe),
-			"layout-bottom": () => h(FloatingOutline),
-		});
-	},
+	Layout: defineComponent({
+		setup(props, { slots }) {
+			const { page } = useData();
+			return () => h(Fragment, null, [
+				h(Theme.Layout, null, {
+					...slots,
+					"doc-after": () => h(Comment),
+					"doc-bottom": () => h(ImageViewer),
+				}),
+				h(FloatingOutline, { headers: page.value?.headers || [] }),
+			]);
+		},
+	}),
 
 	enhanceApp({ app }) {
 		app.component("Comment", Comment);
