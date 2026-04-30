@@ -8,6 +8,7 @@ import "./style.css";
 import Comment from "./components/Comment.vue";
 import ImageViewer from "./components/ImageViewer.vue"
 import Subscribe from "./components/Subscribe.vue";
+import FloatingOutline from "./components/FloatingOutline.vue";
 
 export default {
 	...Theme,
@@ -17,6 +18,7 @@ export default {
 			"doc-after": () => h(Comment),
 			"doc-bottom": () => h(ImageViewer),
 			// "aside-top": () => h(Subscribe),
+			"layout-bottom": () => h(FloatingOutline),
 		});
 	},
 
