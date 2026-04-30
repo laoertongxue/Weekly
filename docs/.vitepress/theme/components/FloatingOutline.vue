@@ -1,5 +1,6 @@
 <template>
-  <div v-if="headers.length > 0" class="floating-outline" :class="{ 'is-open': isOpen }">
+  <Teleport to="body">
+    <div v-if="headers.length > 0" class="floating-outline" :class="{ 'is-open': isOpen }">
         <button class="floating-outline__btn" @click="toggle" :title="isOpen ? '收起大纲' : '大纲'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -57,6 +58,7 @@
           </div>
         </Transition>
       </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
