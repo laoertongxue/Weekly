@@ -1,66 +1,68 @@
 <template>
-  <div class="floating-outline" :class="{ 'is-open': isOpen }" v-show="headers.length > 0">
-        <button class="floating-outline__btn" @click="toggle" :title="isOpen ? '收起大纲' : '大纲'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="8" y1="6" x2="21" y2="6"></line>
-            <line x1="8" y1="12" x2="21" y2="12"></line>
-            <line x1="8" y1="18" x2="21" y2="18"></line>
-            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-          </svg>
-        </button>
+  <Teleport to="body">
+    <div v-show="visible" class="floating-outline" :class="{ 'is-open': isOpen }">
+      <button class="floating-outline__btn" @click="toggle" :title="isOpen ? '收起大纲' : '大纲'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      </button>
 
-        <Transition name="outline-overlay">
-          <div v-if="isOpen" class="floating-outline__overlay" @click="close">
-            <Transition name="outline-panel">
-              <div v-if="isOpen" class="floating-outline__panel" @click.stop>
-                <div class="floating-outline__header">
-                  <span>目录大纲</span>
-                  <button class="floating-outline__close" @click="close">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                </div>
-                <nav class="floating-outline__nav">
-                  <ul>
-                    <li
-                      v-for="header in headers"
-                      :key="header.link"
-                      :class="{ [`outline-item--${header.level}`]: true }"
-                    >
-                      <a
-                        :href="header.link"
-                        :class="{ active: activeAnchor === header.slug }"
-                        @click="close"
-                      >{{ header.title }}</a>
-                      <ul v-if="header.children?.length">
-                        <li
-                          v-for="child in header.children"
-                          :key="child.link"
-                          :class="{ [`outline-item--${child.level}`]: true }"
-                        >
-                          <a
-                            :href="child.link"
-                            :class="{ active: activeAnchor === child.slug }"
-                            @click="close"
-                          >{{ child.title }}</a>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </nav>
+      <Transition name="outline-overlay">
+        <div v-if="isOpen" class="floating-outline__overlay" @click="close">
+          <Transition name="outline-panel">
+            <div v-if="isOpen" class="floating-outline__panel" @click.stop>
+              <div class="floating-outline__header">
+                <span>目录大纲</span>
+                <button class="floating-outline__close" @click="close">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
               </div>
-            </Transition>
-          </div>
-        </Transition>
-      </div>
+              <nav class="floating-outline__nav">
+                <ul>
+                  <li
+                    v-for="header in headers"
+                    :key="header.link"
+                    :class="{ [`outline-item--${header.level}`]: true }"
+                  >
+                    <a
+                      :href="header.link"
+                      :class="{ active: activeAnchor === header.slug }"
+                      @click="close"
+                    >{{ header.title }}</a>
+                    <ul v-if="header.children?.length">
+                      <li
+                        v-for="child in header.children"
+                        :key="child.link"
+                        :class="{ [`outline-item--${child.level}`]: true }"
+                      >
+                        <a
+                          :href="child.link"
+                          :class="{ active: activeAnchor === child.slug }"
+                          @click="close"
+                        >{{ child.title }}</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useRoute } from "vitepress";
 
 interface Header {
@@ -71,44 +73,84 @@ interface Header {
   children?: Header[];
 }
 
-const props = defineProps<{
-  headers: Header[];
-}>();
-
 const route = useRoute();
 
-const headers = computed(() => {
-  return (props.headers || []).filter((header) => header.level >= 2 && header.level <= 4);
-});
-
+const visible = ref(false);
+const headers = ref<Header[]>([]);
 const isOpen = ref(false);
 const activeAnchor = ref("");
+
+function extractHeaders() {
+  const headingEls = document.querySelectorAll(".vp-doc h2, .vp-doc h3, .vp-doc h4");
+  const items: Header[] = [];
+  const stack: Header[] = [];
+
+  headingEls.forEach((el) => {
+    const level = parseInt(el.tagName[1]);
+    const anchor = el.querySelector(".header-anchor");
+    const slug = el.id || "";
+    const link = `#${slug}`;
+    const title = (el.textContent || "").replace(/[\u200B​]$/, "").trim();
+
+    if (!slug || !title) return;
+
+    const item: Header = { level, title, slug, link, children: [] };
+
+    while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+      stack.pop();
+    }
+
+    if (stack.length === 0) {
+      items.push(item);
+    } else {
+      const parent = stack[stack.length - 1];
+      if (!parent.children) parent.children = [];
+      parent.children.push(item);
+    }
+
+    if (level === 2) {
+      stack.push(item);
+    }
+  });
+
+  headers.value = items;
+  visible.value = items.length > 0;
+}
+
+function onHashChange() {
+  activeAnchor.value = window.location.hash.slice(1);
+}
+
+let observer: MutationObserver | null = null;
+
+onMounted(() => {
+  extractHeaders();
+  activeAnchor.value = window.location.hash.slice(1);
+  window.addEventListener("hashchange", onHashChange);
+
+  observer = new MutationObserver(() => {
+    extractHeaders();
+  });
+  const content = document.querySelector(".vp-doc");
+  if (content) {
+    observer.observe(content, { childList: true, subtree: true });
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("hashchange", onHashChange);
+  if (observer) observer.disconnect();
+});
 
 watch(
   () => route.path,
   () => {
     isOpen.value = false;
+    nextTick(() => {
+      extractHeaders();
+    });
   }
 );
-
-let cleanup: (() => void) | null = null;
-
-onMounted(() => {
-  activeAnchor.value = window.location.hash.slice(1);
-
-  const handleHashChange = () => {
-    activeAnchor.value = window.location.hash.slice(1);
-  };
-  window.addEventListener("hashchange", handleHashChange);
-
-  cleanup = () => {
-    window.removeEventListener("hashchange", handleHashChange);
-  };
-});
-
-onUnmounted(() => {
-  if (cleanup) cleanup();
-});
 
 function toggle() {
   isOpen.value = !isOpen.value;
